@@ -20,7 +20,11 @@ connectDB();
 // Middlewares
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5173"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "https://madrassa-system-frontend.vercel.app",
+    ],
     credentials: true,
   })
 );
