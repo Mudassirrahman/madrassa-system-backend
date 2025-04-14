@@ -3,15 +3,11 @@ const Report = require("../models/report");
 // POST   reports
 exports.createReport = async (req, res) => {
   try {
-    const {
-      student,
-      sabaq,
-      sabqi,
-      manzil,
-      aageKaSabaq,
-      tareeqaSunaneKa,
-      totalAyat,
-    } = req.body;
+    if (!req.user) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    const { student, sabaq, sabqi, manzil, aageKaSabaq, tareeqaSunaneKa, totalAyat } = req.body;
 
     const report = new Report({
       teacher: req.user._id,
@@ -27,9 +23,10 @@ exports.createReport = async (req, res) => {
     await report.save();
     res.status(201).json({ message: "Report created successfully", report });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: `Error: ${err.message}` });
   }
 };
+
 
 // GET reports/my (student)
 exports.getReportsForStudent = async (req, res) => {
