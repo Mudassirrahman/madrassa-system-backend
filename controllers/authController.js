@@ -2,37 +2,34 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-
-//REGISTER
+// REGISTER
 const register = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password, role, teacher } = req.body;
 
   if (!name || !email || !password) {
-    return res.status(400).json({ message: "all field required" });
+    return res.status(400).json({ message: "All fields are required" });
   }
 
   const isUserExist = await User.findOne({ email });
-
   if (isUserExist) {
-    return res.status(400).json({ message: "User Already Registerd" });
+    return res.status(400).json({ message: "User already registered" });
   }
 
-  // If role is not provided, default it to 'student'
-  const userRole = role || 'student';
+  const userRole = role || "student";
 
   const newUser = new User({
     name,
     email,
     password,
-    role: userRole,  // Setting role here
+    role: userRole,
+    teacher: userRole === "student" ? teacher : null,
   });
 
   await newUser.save();
-  res.status(201).json({ message: "user registerd successfully", newUser });
+  res.status(201).json({ message: "User registered successfully", newUser });
 };
 
-
-//LOGIN
+// LOGIN
 const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -41,15 +38,13 @@ const login = async (req, res) => {
   }
 
   const isExist = await User.findOne({ email });
-
   if (!isExist) {
-    return res.status(401).json({ message: "email or password not match" });
+    return res.status(401).json({ message: "Email or password not match" });
   }
 
-  const compairPassword = await bcrypt.compare(password, isExist.password);
-
-  if (!compairPassword) {
-    return res.status(401).json({ message: "email or password not match" });
+  const comparePassword = await bcrypt.compare(password, isExist.password);
+  if (!comparePassword) {
+    return res.status(401).json({ message: "Email or password not match" });
   }
 
   const token = jwt.sign({ id: isExist._id }, process.env.JWT_SECRET_KEY, {
@@ -57,33 +52,49 @@ const login = async (req, res) => {
   });
 
   return res.status(200).json({
-    message: "user logedin successfully",
+    message: "User logged in successfully",
     userName: isExist.name,
-    role: isExist.role, // Include role here
+    role: isExist.role,
     token: token,
   });
 };
 
-
-//LOGOUT
+// LOGOUT
 const logout = (req, res) => {
   res.json({ message: "Logged out successfully" });
 };
 
-// get all student list on dashboard
+// Get all students (only assigned to the logged-in teacher)
 const getAllStudents = async (req, res) => {
   try {
-    // Ensure user is authorized (i.e., a teacher)
     if (!req.user || req.user.role !== "teacher") {
       return res.status(403).json({ message: "Not authorized" });
     }
 
-    const students = await User.find({ role: "student" }).select("name email");
+    const students = await User.find({
+      role: "student",
+      teacher: req.user.id,
+    }).select("name email");
     res.json({ students });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-module.exports = { register, login, logout, getAllStudents };
+// Get all teachers
+const getAllTeachers = async (req, res) => {
+  try {
+    const teachers = await User.find({ role: "teacher" }).select("name email");
+    res.json({ teachers });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
+module.exports = {
+  register,
+  login,
+  logout,
+  getAllStudents,
+  getAllTeachers,
+};
