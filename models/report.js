@@ -12,12 +12,55 @@ const reportSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    sabaq: { type: String, required: true },
-    sabqi: { type: String, required: true },
-    manzil: { type: String, required: true },
-    aageKaSabaq: { type: String, required: true },
-    tareeqaSunaneKa: { type: String, required: true },
-    totalAyat: { type: Number, required: true },
+
+    // Sabaq Section
+    sabaq: {
+      paraName: { type: String },
+      suratName: { type: String },
+      ayatFrom: { type: Number },
+      ayatTo: { type: Number },
+      mistakes: { type: Number },
+      mistakeAyatNumbers: [{ type: Number }],
+      otherPara: { type: String },            // Optional
+      otherSurat: { type: String },           // Optional
+    },
+
+    // Sabqi Section
+    sabqi: {
+      paraName: { type: String },
+      suratName: { type: String },
+      rukuFrom: { type: Number },
+      rukuTo: { type: Number },
+      mistakes: { type: Number },
+      mistakeAyatNumbers: [{ type: Number }],
+      otherPara: { type: String },            // Optional
+      otherSurat: { type: String },           // Optional
+    },
+
+    // Manzil Section
+    manzil: {
+      paraName: { type: String },
+      suratName: { type: String },
+      totalRuku: { type: Number },
+      mistakes: { type: Number },
+      mistakeRukuNumbers: [{ type: Number }],
+      otherPara: { type: String },            // Optional
+      otherSurat: { type: String },           // Optional
+    },
+
+    // New Sabaq Section
+    aageKaSabaq: {
+      paraName: { type: String },
+      suratName: { type: String },
+      ayatFrom: { type: Number },
+      ayatTo: { type: Number },
+      totalAyat: { type: Number },
+      otherPara: { type: String },            // Optional
+      otherSurat: { type: String },           // Optional
+    },
+
+    tareeqaSunaneKa: { type: String },
+    overallPerformance: { type: String },
   },
   {
     timestamps: true,
